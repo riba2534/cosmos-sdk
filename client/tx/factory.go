@@ -495,14 +495,19 @@ func (f Factory) getSimSignatureData(pk cryptotypes.PubKey) signing.SignatureDat
 		return &signing.SingleSignatureData{SignMode: f.signMode}
 	}
 
+	// The bit array must be sized to the whole key set and have exactly threshold bits
+	// set, otherwise the ante handler rejects the simulation tx before estimating gas.
+	subKeys := multisigPubKey.PubKeys
+	bitArray := cryptotypes.NewCompactBitArray(len(subKeys))
 	multiSignatureData := make([]signing.SignatureData, 0, multisigPubKey.Threshold)
-	for i := uint32(0); i < multisigPubKey.Threshold; i++ {
-		multiSignatureData = append(multiSignatureData, &signing.SingleSignatureData{
-			SignMode: f.SignMode(),
-		})
+	for i := 0; i < len(subKeys) && i < int(multisigPubKey.Threshold); i++ {
+		bitArray.SetIndex(i, true)
+		subKey, _ := subKeys[i].GetCachedValue().(cryptotypes.PubKey)
+		multiSignatureData = append(multiSignatureData, f.getSimSignatureData(subKey))
 	}
 
 	return &signing.MultiSignatureData{
+		BitArray:   bitArray,
 		Signatures: multiSignatureData,
 	}
 }

@@ -50,6 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (client/tx) [#26759](https://github.com/cosmos/cosmos-sdk/issues/26759) Populate the multisig bit array when building a simulation transaction, so `--gas auto` no longer fails with `bit array size is incorrect, expecting: N` for multisig senders. Nested multisig sub-keys now also get multisig (rather than single) dummy signature data.
+
 ### Deprecated
 
 ## [v0.55.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.55.0) - 2026-07-27
